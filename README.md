@@ -111,7 +111,7 @@ body {
 
 ![alt text][mock-1]
 
-[mock-1]: ./assets/images/Screenshot_1.png "Logo Title Text 2"
+[mock-1]: ./assets/images/Screenshot_1.png "MOCK"
 
 > JSON correspondiente
 
@@ -131,7 +131,7 @@ body {
 
 ![alt text][mock-2]
 
-[mock-2]: ./assets/images/Screenshot_2.png "Logo Title Text 2"
+[mock-2]: ./assets/images/Screenshot_2.png "Components"
 
 Aquí verás que tenemos 5 componentes:
 
@@ -289,4 +289,116 @@ products = [
 
 > Con esto ya podemos ver la data estructurada
 
+## IDENTIFICA LA REPRESENTACIÓN MÍNIMA (PERO COMPLETA) DEL ESTADO DE TU UI
 
+* La lista de productos
+* El texto de búsqueda que ingresa el usuario
+* El valor del checkbox
+
+> Ahora hacemos la integración de React con Redux para comenzar con este estado global.
+
+> Primero creamos un nuevo archivo `lib/store.js` que contendrá la configuración de nuestro `Redux` store.
+
+```jsx
+// lib/store.js
+
+import { createStore, combineReducers } from 'redux';
+
+import AppReducer from './reducer';
+
+const rootReducer = combineReducers({
+  // aquí puedes ir agregando entradas de tu store
+  AppReducer,
+});
+
+const store = createStore(
+  rootReducer,
+  // inyectamos la capacidad de usar Redux Dev Tools
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+);
+
+export default store;
+```
+
+```jsx
+// Supongamos que estos son los productos que recibimos de nuestra API JSON
+const PRODUCTS = [
+  { category: 'Sporting Goods', price: '$49.99', stocked: true, name: 'Football' },
+  { category: 'Sporting Goods', price: '$9.99', stocked: true, name: 'Baseball' },
+  { category: 'Sporting Goods', price: '$29.99', stocked: false, name: 'Basketball' },
+  { category: 'Electronics', price: '$99.99', stocked: true, name: 'iPod Touch' },
+  { category: 'Electronics', price: '$399.99', stocked: false, name: 'iPhone 5' },
+  { category: 'Electronics', price: '$1699.99', stocked: true, name: 'Nexus 7' },
+];
+
+const INIT_STATE = {
+  // La de productos
+  products: PRODUCTS,
+  // El texto de búsqueda que ingresa el usuario
+  filterText: '',
+  // El valor del checkbox
+  inStockOnly: false,
+};
+
+// nuestro reducer todavía no reacciona a ninguna acción, pero ya tiene un valor
+// inicial
+export default (state = INIT_STATE, action) => {
+  switch (action.type) {
+  default:
+    return state;
+  }
+};
+```
+
+> Si chequeas `Redux Dev Tools` verás como el `state` de la aplicación ya cuenta con la info indicada en **INIT_STATE**
+
+![alt text][mock-3]
+
+[mock-3]: ./assets/images/Screenshot_3.png "Redux devTools"
+
+* Luego, quitemos el **hack** que colocamos en `lib/components/Main.js` e inyectemos la magia de `Redux` a nuestros componentes.
+
+> Para ello necesitamos hacer solamente dos cosas. Primero vamos a crear nuestro HOC a la altura de la carpeta `components` que se encargará de setear la data que necesita `lib/components/Main.js`, lo crearemos en `lib/Main.js`
+
+```jsx
+// lib/Main.js
+import { connect } from 'react-redux';
+// Y el componente puramente presentacional de Main, ya sin hack
+import MainComponent from './components/Main';
+
+const MainWithRedux = connect(
+  // `connect` recibe dos parámetros. El primero de ellos es
+  // `mapStateToProps` que justamente lo que haces es mapear valores del state
+  // a props que recibirá `MainComponent`
+  function mapStateToProps(state) {
+    // buscamos los valores que nos interesan
+    const {
+      filteredProducts
+    } = state.AppReducer;
+
+    // y devolvemos las nuevas props
+    return {
+      // fijate q los productos filtrados en el state se llaman `filteredProducts`
+      // pero que la props del componente `Main` se llama `products`
+      products: filteredProducts
+    };
+  }
+)(MainComponent);
+
+export default MainWithRedux;
+```
+
+* Y lo segundo es indicar en `App.js` que ya no queremos usar `lib/components/Main`, sino su versión mejorada `lib/Main`.
+
+> **Nota:** en `reducer.js` cambiamos `products` por `filteredProducts`
+
+```js
+const INIT_STATE = {
+  // La de productos
+  filteredProducts: PRODUCTS,
+  // El texto de búsqueda que ingresa el usuario
+  filterText: '',
+  // El valor del checkbox
+  inStockOnly: false
+};
+```

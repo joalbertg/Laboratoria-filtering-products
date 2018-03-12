@@ -1,15 +1,20 @@
-import React from 'react'
+import React from 'react';
 
-const FilterableProductTable = () => {
+import SearchBar from './SearchBar';
+import ProductTable from './ProductTable';
+
+const FilterableProductTable = ({ products }) => {
   const style = {
     width: '70%',
     float: 'left'
   }
+
   return (
     <div style={style}>
-      <h2>Filterable Product Table</h2>
+      <SearchBar />
+      <ProductTable products={products} />
     </div>
-  )
+  );
 }
 
-export default FilterableProductTable
+export default FilterableProductTable;

@@ -115,7 +115,7 @@ body {
 
 > JSON correspondiente
 
-```json
+```js
 [
   {category: "Sporting Goods", price: "$49.99", stocked: true, name: "Football"},
   {category: "Sporting Goods", price: "$9.99", stocked: true, name: "Baseball"},
@@ -181,25 +181,6 @@ export default FilterableProductTable;
 
 ```jsx
 // lib/FilterableProductTable/components/SearchBar.js
-import React from 'react';
-
-const SearchBar = () => {
-  return (
-    <form>
-      <input type="text" placeholder="Search..." />
-      <p>
-        <input type="checkbox" />
-        {' '}
-        Only show products in stock
-      </p>
-    </form>
-  );
-}
-
-export default SearchBar;
-```
-
-```jsx
 import React from 'react';
 
 const SearchBar = () => {
